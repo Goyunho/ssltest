@@ -43,6 +43,7 @@ bool generate_key()
     ret = PEM_write_bio_RSAPrivateKey(bp_private, r, NULL, NULL, 0, NULL, NULL);
 
     // 4. free
+free_all:
     BIO_free_all(bp_public);
     BIO_free_all(bp_private);
     RSA_free(r);
@@ -118,8 +119,8 @@ int main(){
 
     char plainText[2048/8] = "Hello this is Ravi"; //key length : 2048
 
-    FILE publicKey_fs=open("public.pem", "r");
-    FILE privateKey_fs=open("private.pem", "r");
+    FILE *publicKey_fs=fopen("public.pem", "r");
+    FILE *privateKey_fs=fopen("private.pem", "r");
     int fs_size=0;
 
     unsigned char encrypted[4098]={};
@@ -128,7 +129,7 @@ int main(){
     char *publicKey;
     char *privateKey;
 
-    if(publicKey_fs == -1 && privateKey_fs == -1){
+    if(publicKey_fs == 0 || privateKey_fs == 0){
         generate_key();
     }
 
