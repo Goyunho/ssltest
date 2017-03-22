@@ -29,7 +29,7 @@ int main(int argc, char *args[]){
 	SHA256_gen(key_str, key_sha256);
 
 	for(i=0; i < SHA256_DIGEST_LENGTH; i++){
-		printf("%02x", sha256_str[i]);
+		printf("%02x", key_sha256[i]);
 	}
 	printf("\n");
 
