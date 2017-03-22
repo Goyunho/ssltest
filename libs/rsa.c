@@ -6,6 +6,8 @@
 #include <openssl/err.h>
 #include <stdio.h>
 
+typedef enum {false, true} bool;
+
 int padding = RSA_PKCS1_PADDING;
 
 bool generate_key()
