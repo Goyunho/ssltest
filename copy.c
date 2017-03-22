@@ -5,6 +5,7 @@
 #include "aes.h"
 
 #define FAIL -1
+#define SUCC 0
 
 unsigned char key_sha256[SHA_DIGEST_LENGTH];
 
@@ -27,7 +28,7 @@ int main(int argc, char *args[]){
 	// SHA256_gen(str, sha256_str);
 	SHA256_gen(key_str, key_sha256);
 
-	for(i=0; i < strlen(sha256_str); i++){
+	for(i=0; i < SHA256_DIGEST_LENGTH; i++){
 		printf("%02x", sha256_str[i]);
 	}
 	printf("\n");
@@ -46,7 +47,7 @@ int main(int argc, char *args[]){
 
 	if( fs_encrypt_aes(key_sha256, file, "file.enc") == SUCC){
 		fs_decrypt_aes(key_sha256, "file.enc", "file.dec");
-		printf("result:[%s]\n", "file.dec";
+		printf("result:[%s]\n", "file.dec");
 	}
 
 	return 0;
