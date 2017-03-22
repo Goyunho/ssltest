@@ -80,7 +80,7 @@ RSA * createRSA(unsigned char * key, int public) // public => 1: public key, 0: 
     return rsa;
 }
 
-// 공개키 암호화
+// public_enc
 int public_encrypt(unsigned char * data, int data_len, unsigned char * key, unsigned char *encrypted)
 {
     RSA * rsa = createRSA(key, 1);
@@ -94,7 +94,7 @@ int private_decrypt(unsigned char * enc_data, int data_len, unsigned char * key,
     return result;
 }
 
-// 디지털 서명
+// digital sign
 int private_encrypt(unsigned char * data, int data_len, unsigned char * key, unsigned char *encrypted)
 {
     RSA * rsa = createRSA(key, 0);
@@ -110,7 +110,7 @@ int public_decrypt(unsigned char * enc_data, int data_len, unsigned char * key, 
 
 void printLastError(char *msg)
 {
-    char * err = malloc(130);;
+    char * err = malloc(130);
     ERR_load_crypto_strings();
     ERR_error_string(ERR_get_error(), err);
     printf("%s ERROR: %s\n", msg, err);
@@ -127,6 +127,8 @@ int main(){
 
     unsigned char encrypted[4098]={};
     unsigned char decrypted[4098]={};
+    int encrypted_length;
+    int decrypted_length;
 
     char *publicKey;
     char *privateKey;
@@ -135,21 +137,23 @@ int main(){
         generate_key();
     }
 
-    // public.pem 가져오기
+    // public.pem load
     fseek(publicKey_fs, 0L, SEEK_END);
     fs_size = ftell(publicKey_fs);
     fseek(publicKey_fs, 0L, SEEK_SET);
+    publicKey=(char*)malloc(sizeof(char)*fs_size);
     fread(publicKey, sizeof(char), fs_size, publicKey_fs);
-    fclose(publicKey_fs);
+	printf("%s\n", publicKey);
 
-    // private.pem 가져오기
+    // private.pem load
     fseek(privateKey_fs, 0L, SEEK_END);
-    fs_size = ftell(publicKey_fs);
+    fs_size = ftell(privateKey_fs);
     fseek(privateKey_fs, 0L, SEEK_SET);
+    privateKey=(char*)malloc(sizeof(char)*fs_size);
     fread(privateKey, sizeof(char), fs_size, privateKey_fs);
-    fclose(privateKey_fs);
+	printf("%s\n", privateKey);
 
-    int encrypted_length= public_encrypt(plainText, strlen(plainText), publicKey, encrypted);
+    encrypted_length= public_encrypt(plainText, strlen(plainText), publicKey, encrypted);
     if(encrypted_length == -1)
     {
         printLastError("Public Encrypt failed ");
@@ -157,7 +161,7 @@ int main(){
     }
     printf("Encrypted length =%d\n", encrypted_length);
 
-    int decrypted_length = private_decrypt(encrypted, encrypted_length, privateKey, decrypted);
+    decrypted_length = private_decrypt(encrypted, encrypted_length, privateKey, decrypted);
     if(decrypted_length == -1)
     {
         printLastError("Private Decrypt failed ");
@@ -184,4 +188,10 @@ int main(){
     printf("Decrypted Text =%s\n", decrypted);
     printf("Decrypted Length =%d\n", decrypted_length);
 
+    fclose(publicKey_fs);
+    fclose(privateKey_fs);
+    free(publicKey);
+    free(privateKey);
+
+    return 0;
 }
