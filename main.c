@@ -3,6 +3,7 @@
 #include <string.h>
 #include "sha.h"
 #include "aes.h"
+#include "rsa.h"
 
 #define FAIL -1
 #define SUCC 0

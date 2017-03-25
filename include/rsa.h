@@ -3,6 +3,8 @@
 #define ENCRYPT 0b01
 #define DECRYPT 0b00
 
+typedef enum {false, true} bool;
+
 bool generate_key();
 RSA * createRSA(unsigned char * key, int public);
 
