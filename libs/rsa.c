@@ -6,9 +6,12 @@
 #include <openssl/err.h>
 #include <stdio.h>
 
-#define DEBUG printf("[DEBUG:%s]\n", __func__);
-typedef enum {false, true} bool;
+#define PUBLIC  0x00
+#define PRIVATE 0b10
+#define ENCRYPT 0b01
+#define DECRYPT 0b00
 
+typedef enum {false, true} bool;
 
 int padding = RSA_PKCS1_PADDING;
 
@@ -120,85 +123,41 @@ void printLastError(char *msg)
     free(err);
 }
 
-int main(){
+bool fs_process(int type, unsigned char * source_data, int source_data_len, char* key_path, unsigned char *crypted_buff){
+    int result_length=-1;
 
-    char plainText[2048/8] = "Hello this is Ravi"; //key length : 2048
-
-    FILE *publicKey_fs=fopen("public.pem", "r");
-    FILE *privateKey_fs=fopen("private.pem", "r");
+    FILE *key_fs=fopen(key_path, "r");
     int fs_size=0;
 
-    unsigned char encrypted[4098]={};
-    unsigned char decrypted[4098]={};
-    int encrypted_length;
-    int decrypted_length;
+    char *key;
 
-    char *publicKey;
-    char *privateKey;
+    // key load
+    fseek(key_fs, 0L, SEEK_END);
+    fs_size = ftell(key_fs);
+    fseek(key_fs, 0L, SEEK_SET);
+    key=(char*)malloc(sizeof(char)*fs_size);
+    fread(key, sizeof(char), fs_size, key_fs);
 
-    if(publicKey_fs == 0 || privateKey_fs == 0){
-        if(generate_key()){
-            publicKey_fs=fopen("public.pem", "r");
-            privateKey_fs=fopen("private.pem", "r");
-	}
-        else{
-	    return 0;
-        }
+    switch(type){
+        case PUBLIC|ENCRYPT:
+        result_length= public_encrypt(source_data, source_data_len, key, crypted_buff);
+        break;
+        case PRIVATE|DECRYPT:
+        result_length = private_decrypt(source_data, source_data_len, key, crypted_buff);
+        break;
+        case PRIVATE|ENCRYPT:
+        result_length= private_encrypt(source_data, source_data_len, key, crypted_buff);
+        break;
+        case PUBLIC|DECRYPT:
+        result_length = public_decrypt(source_data, source_data_len, key, crypted_buff);
+        break;
     }
 
-    // public.pem load
-    fseek(publicKey_fs, 0L, SEEK_END);
-    fs_size = ftell(publicKey_fs);
-    fseek(publicKey_fs, 0L, SEEK_SET);
-    publicKey=(char*)malloc(sizeof(char)*fs_size);
-    fread(publicKey, sizeof(char), fs_size, publicKey_fs);
+    fclose(key_fs);
+    free(key);
 
-    // private.pem load
-    fseek(privateKey_fs, 0L, SEEK_END);
-    fs_size = ftell(privateKey_fs);
-    fseek(privateKey_fs, 0L, SEEK_SET);
-    privateKey=(char*)malloc(sizeof(char)*fs_size);
-    fread(privateKey, sizeof(char), fs_size, privateKey_fs);
+    if(result_length == -1)
+        return false;
 
-    encrypted_length= public_encrypt(plainText, strlen(plainText), publicKey, encrypted);
-    if(encrypted_length == -1)
-    {
-        printLastError("Public Encrypt failed ");
-        exit(0);
-    }
-    printf("Encrypted length =%d\n", encrypted_length);
-
-    decrypted_length = private_decrypt(encrypted, encrypted_length, privateKey, decrypted);
-    if(decrypted_length == -1)
-    {
-        printLastError("Private Decrypt failed ");
-        exit(0);
-    }
-    printf("Decrypted Text =%s\n", decrypted);
-    printf("Decrypted Length =%d\n", decrypted_length);
-
-
-    encrypted_length= private_encrypt(plainText, strlen(plainText), privateKey, encrypted);
-    if(encrypted_length == -1)
-    {
-        printLastError("Private Encrypt failed");
-        exit(0);
-    }
-    printf("Encrypted length =%d\n", encrypted_length);
-
-    decrypted_length = public_decrypt(encrypted, encrypted_length, publicKey, decrypted);
-    if(decrypted_length == -1)
-    {
-        printLastError("Public Decrypt failed");
-        exit(0);
-    }
-    printf("Decrypted Text =%s\n", decrypted);
-    printf("Decrypted Length =%d\n", decrypted_length);
-
-    fclose(publicKey_fs);
-    fclose(privateKey_fs);
-    free(publicKey);
-    free(privateKey);
-
-    return 0;
+    return true;
 }
