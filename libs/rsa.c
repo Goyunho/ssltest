@@ -37,7 +37,7 @@ bool generate_key()
 
     // 2. save public key
     bp_public = BIO_new_file("public.pem", "w+");
-    ret = PEM_write_bio_RSAPublicKey(bp_public, r);
+    ret = PEM_write_bio_RSA_PUBKEY(bp_public, r);
     if(ret != 1){
         goto free_all;
     }
@@ -137,7 +137,13 @@ int main(){
     char *privateKey;
 
     if(publicKey_fs == 0 || privateKey_fs == 0){
-        generate_key();
+        if(generate_key()){
+            publicKey_fs=fopen("public.pem", "r");
+            privateKey_fs=fopen("private.pem", "r");
+	}
+        else{
+	    return 0;
+        }
     }
 
     // public.pem load
