@@ -6,7 +6,9 @@
 #include <openssl/err.h>
 #include <stdio.h>
 
+#define DEBUG printf("[DEBUG:%s]\n", __func__);
 typedef enum {false, true} bool;
+
 
 int padding = RSA_PKCS1_PADDING;
 
@@ -59,6 +61,7 @@ RSA * createRSA(unsigned char * key, int public) // public => 1: public key, 0: 
     RSA *rsa= NULL;
     BIO *keybio ;
     keybio = BIO_new_mem_buf(key, -1);
+
     if (keybio==NULL)
     {
         printf( "Failed to create key BIO");
@@ -81,13 +84,13 @@ RSA * createRSA(unsigned char * key, int public) // public => 1: public key, 0: 
 }
 
 // public_enc
-int public_encrypt(unsigned char * data, int data_len, unsigned char * key, unsigned char *encrypted)
+int public_encrypt(unsigned char * data, int data_len, char * key, unsigned char *encrypted)
 {
     RSA * rsa = createRSA(key, 1);
     int result = RSA_public_encrypt(data_len, data, encrypted, rsa, padding);
     return result;
 }
-int private_decrypt(unsigned char * enc_data, int data_len, unsigned char * key, unsigned char *decrypted)
+int private_decrypt(unsigned char * enc_data, int data_len, char * key, unsigned char *decrypted)
 {
     RSA * rsa = createRSA(key, 0);
     int  result = RSA_private_decrypt(data_len, enc_data, decrypted, rsa, padding);
@@ -95,13 +98,13 @@ int private_decrypt(unsigned char * enc_data, int data_len, unsigned char * key,
 }
 
 // digital sign
-int private_encrypt(unsigned char * data, int data_len, unsigned char * key, unsigned char *encrypted)
+int private_encrypt(unsigned char * data, int data_len, char * key, unsigned char *encrypted)
 {
     RSA * rsa = createRSA(key, 0);
     int result = RSA_private_encrypt(data_len, data, encrypted, rsa, padding);
     return result;
 }
-int public_decrypt(unsigned char * enc_data, int data_len, unsigned char * key, unsigned char *decrypted)
+int public_decrypt(unsigned char * enc_data, int data_len, char * key, unsigned char *decrypted)
 {
     RSA * rsa = createRSA(key, 1);
     int  result = RSA_public_decrypt(data_len, enc_data, decrypted, rsa, padding);
@@ -143,7 +146,6 @@ int main(){
     fseek(publicKey_fs, 0L, SEEK_SET);
     publicKey=(char*)malloc(sizeof(char)*fs_size);
     fread(publicKey, sizeof(char), fs_size, publicKey_fs);
-	printf("%s\n", publicKey);
 
     // private.pem load
     fseek(privateKey_fs, 0L, SEEK_END);
@@ -151,7 +153,6 @@ int main(){
     fseek(privateKey_fs, 0L, SEEK_SET);
     privateKey=(char*)malloc(sizeof(char)*fs_size);
     fread(privateKey, sizeof(char), fs_size, privateKey_fs);
-	printf("%s\n", privateKey);
 
     encrypted_length= public_encrypt(plainText, strlen(plainText), publicKey, encrypted);
     if(encrypted_length == -1)
