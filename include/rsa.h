@@ -1,3 +1,11 @@
+#include <openssl/pem.h>
+#include <openssl/ssl.h>
+#include <openssl/rsa.h>
+#include <openssl/evp.h>
+#include <openssl/bio.h>
+#include <openssl/err.h>
+#include <stdio.h>
+
 #define PUBLIC  0x00
 #define PRIVATE 0b10
 #define ENCRYPT 0b01

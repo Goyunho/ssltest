@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <openssl/aes.h>
-
 #define BLOCK_SIZE 16
 #define FREAD_COUNT 4096
 #define KEY_BIT 256
