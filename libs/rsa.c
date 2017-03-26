@@ -1,5 +1,7 @@
 #include "rsa.h"
 
+int padding = RSA_PKCS1_PADDING;
+
 bool generate_key()
 {
     int             ret = 0;
