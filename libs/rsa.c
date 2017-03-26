@@ -1,11 +1,4 @@
-#define PUBLIC  0x00
-#define PRIVATE 0b10
-#define ENCRYPT 0b01
-#define DECRYPT 0b00
-
-typedef enum {false, true} bool;
-
-int padding = RSA_PKCS1_PADDING;
+#include "rsa.h"
 
 bool generate_key()
 {

@@ -13,6 +13,8 @@
 
 typedef enum {false, true} bool;
 
+int padding = RSA_PKCS1_PADDING;
+
 bool generate_key();
 RSA * createRSA(unsigned char * key, int public);
 
