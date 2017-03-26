@@ -8,6 +8,8 @@
 #define KEY_BIT 256
 #define IV_SIZE 16
 #define RW_SIZE 1
+#define FAIL -1
+#define SUCC 0
 
 AES_KEY aes_ks3;
 unsigned char iv[IV_SIZE];
